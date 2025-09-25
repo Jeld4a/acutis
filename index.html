@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Kvízová otázka</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f2f2f2;
+    }
+    .container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input {
+      padding: 5px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 5px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Otázka:</h2>
+    <p>Jakou přezdívku měla Domča (bez velkých písmen)?</p>
+    <input type="text" id="answer" placeholder="Vaše odpověď">
+    <br>
+    <button onclick="checkAnswer()">Odpovědět</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    function checkAnswer() {
+      const userAnswer = document.getElementById('answer').value.trim();
+      const result = document.getElementById('result');
+      
+      if (userAnswer === "šunka") {
+        result.textContent = "Správně! 🎉";
+        result.style.color = "green";
+      } else {
+        result.textContent = "Špatně, zkus to znovu.";
+        result.style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>
