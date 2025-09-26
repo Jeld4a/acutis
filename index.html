@@ -44,6 +44,42 @@
     }
     button:hover { filter: brightness(0.95); }
     #result { margin-top: 14px; font-weight: 600; min-height: 22px; }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .video-card {
+      background: #000;
+      border-radius: 10px;
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    .video-card video, .video-card iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+    }
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.85);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -61,8 +97,31 @@
     </small>
   </div>
 
+  <!-- Overlay s videem -->
+  <div class="overlay" id="overlay">
+    <div class="video-card">
+      <button class="close-btn" id="closeVideo">Zavřít ✕</button>
+
+      <!-- Varianta A: lokální MP4 -->
+      <video id="localVideo" controls playsinline>
+        <source src="video/congrats.mp4" type="video/mp4">
+        Váš prohlížeč nepodporuje přehrávání videa.
+      </video>
+
+      <!-- Varianta B: YouTube (odkomentuj a nahraď VIDEO_ID) -->
+      <!--
+      <iframe id="youtubeIframe"
+              src="https://www.youtube.com/embed/VIDEO_ID?rel=0"
+              title="Oslavné video"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+      -->
+    </div>
+  </div>
+
   <script>
-    // Seznam otázek
     const questions = [
       { q: "Kolik je 3 + 4?", a: "7" },
       { q: "Jaké je hlavní město České republiky?", a: "Praha" },
@@ -80,7 +139,7 @@
     function selectQuestion() {
       const now = new Date();
       const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
-      const intervalIndex = Math.floor(minutesSinceMidnight / 5); // číslo intervalu
+      const intervalIndex = Math.floor(minutesSinceMidnight / 5);
       const idx = intervalIndex % questions.length;
       currentQuestion = questions[idx];
       document.getElementById('question').textContent = currentQuestion.q;
@@ -88,13 +147,40 @@
       document.getElementById('answer').value = "";
     }
 
-    // Vyber otázku při načtení stránky
     selectQuestion();
-
-    // Po uplynutí 5 minut vybere novou otázku
     setInterval(selectQuestion, 5 * 60 * 1000);
 
-    // Ověření odpovědi
+    const overlay = document.getElementById('overlay');
+    const localVideo = document.getElementById('localVideo');
+    const closeVideo = document.getElementById('closeVideo');
+
+    function showVideo() {
+      overlay.style.display = 'flex';
+      if (localVideo) {
+        localVideo.currentTime = 0;
+        localVideo.play().catch(err => {
+          console.warn("Nepodařilo se spustit video:", err);
+        });
+      }
+    }
+
+    function hideVideo() {
+      overlay.style.display = 'none';
+      if (localVideo && !localVideo.paused) {
+        localVideo.pause();
+        localVideo.currentTime = 0;
+      }
+      const yt = document.getElementById('youtubeIframe');
+      if (yt) {
+        yt.src = yt.src; // refresh iframe = stop
+      }
+    }
+
+    closeVideo.addEventListener('click', hideVideo);
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) hideVideo();
+    });
+
     function checkAnswer() {
       const userAnswer = document.getElementById('answer').value.trim();
       const result = document.getElementById('result');
@@ -108,7 +194,7 @@
       if (userAnswer.toLowerCase() === currentQuestion.a.toLowerCase()) {
         result.textContent = "Správně! 🎉";
         result.style.color = "green";
-        // tady můžeš spustit video – např. zobrazit modal nebo <video> prvek
+        showVideo();
       } else {
         result.textContent = "Špatně, zkus to znovu.";
         result.style.color = "red";
