@@ -1,68 +1,255 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <title>Kvízová otázka</title>
+  <meta charset="utf-8" />
+  <title>Týdenní otázka — kvíz</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       background: #f2f2f2;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
     .container {
       background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      max-width: 560px;
+      width: 100%;
       text-align: center;
     }
-    input {
-      padding: 5px;
-      margin: 10px 0;
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
     }
     button {
-      padding: 5px 15px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 5px;
-      background: #4CAF50;
-      color: white;
+      border-radius: 8px;
+      background: #2f8fef;
+      color: #fff;
+      font-size: 16px;
       cursor: pointer;
     }
-    button:hover {
-      background: #45a049;
+    button:hover { filter: brightness(0.95); }
+    #result { margin-top: 14px; font-weight: 600; min-height: 22px; }
+    /* Modal / video overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
     }
-    #result {
-      margin-top: 15px;
-      font-weight: bold;
+    .video-card {
+      background: #000;
+      border-radius: 10px;
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    .video-card video, .video-card iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      aspect-ratio: 16 / 9;
+    }
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.85);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Otázka:</h2>
-    <p>Jakou přezdívku měla Domča (bez velkých písmen)?</p>
-    <input type="text" id="answer" placeholder="Vaše odpověď">
-    <br>
-    <button onclick="checkAnswer()">Odpovědět</button>
+  <div class="container" id="quiz">
+    <h2>Týdenní otázka</h2>
+    <p id="question">Načítám otázku…</p>
+
+    <input type="text" id="answer" placeholder="Vaše odpověď" autocomplete="off" />
+    <br/>
+    <button id="submitBtn">Odpovědět</button>
+
     <p id="result"></p>
+    <small style="display:block;margin-top:8px;color:#666">Otázka se mění automaticky každý týden.</small>
+  </div>
+
+  <!-- Overlay s videem (vyber jednu z variant níže — localVideo nebo youtubeIframe) -->
+  <div class="overlay" id="overlay">
+    <div class="video-card" role="dialog" aria-modal="true" aria-label="Oslavné video">
+      <button class="close-btn" id="closeVideo">Zavřít ✕</button>
+
+      <!-- VARIANTA A: lokální MP4 (nahraj do repozitáře do složky /video/congrats.mp4) -->
+      <video id="localVideo" controls playsinline>
+        <source src="video/congrats.mp4" type="video/mp4">
+        Váš prohlížeč nepodporuje přehrávání videa.
+      </video>
+
+      <!-- VARIANTA B: YouTube (pokud chceš použít YouTube, odkomentuj iframe a zakomentuj <video>) -->
+      <!--
+      <iframe id="youtubeIframe"
+              src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&rel=0"
+              title="Oslavné video"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+      -->
+    </div>
   </div>
 
   <script>
+    // --- otázky (uprav podle potřeby) ---
+    const questions = [
+      { q: "Kolik je 3 + 4?", a: "7" },
+      { q: "Jaké je hlavní město České republiky?", a: "Praha" },
+      { q: "Kolik má měsíců jeden rok?", a: "12" },
+      { q: "Jaká je chemická značka vody?", a: "H2O" },
+      { q: "Kolik stran má čtverec?", a: "4" },
+      { q: "Jaký je název našeho planetárního domova?", a: "Země" },
+      { q: "Barva oblohy ve dne za dobrého počasí?", a: "modrá" },
+      { q: "Jak se řekne 'ano' v angličtině?", a: "yes" },
+      { q: "Počet dní v týdnu?", a: "7" },
+      { q: "Kolik je 10 - 3?", a: "7" }
+    ];
+
+    // Získání čísla týdne (ISO week)
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return weekNo;
+    }
+
+    const today = new Date();
+    const week = getWeekNumber(today);
+    const idx = week % questions.length;
+    const currentQuestion = questions[idx];
+
+    // Naplníme otázku do DOM
+    document.getElementById('question').textContent = currentQuestion.q;
+
+    // UI prvky
+    const answerEl = document.getElementById('answer');
+    const resultEl = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    const overlay = document.getElementById('overlay');
+    const localVideo = document.getElementById('localVideo');
+    const closeVideo = document.getElementById('closeVideo');
+
+    // Hlavní kontrola odpovědi
     function checkAnswer() {
-      const userAnswer = document.getElementById('answer').value.trim();
-      const result = document.getElementById('result');
-      
-      if (userAnswer === "šunka") {
-        result.textContent = "Správně! 🎉";
-        result.style.color = "green";
+      const userAnswer = answerEl.value.trim();
+      if (!userAnswer) {
+        resultEl.textContent = "Napiš odpověď, prosím.";
+        resultEl.style.color = "orange";
+        return;
+      }
+
+      if (userAnswer.toLowerCase() === currentQuestion.a.toLowerCase()) {
+        // správně
+        resultEl.textContent = "Správně! 🎉 Pustím video…";
+        resultEl.style.color = "green";
+
+        // otevřeme overlay s videem — uživatelská interakce (kliknutí) povolí přehrání
+        showVideo();
       } else {
-        result.textContent = "Špatně, zkus to znovu.";
-        result.style.color = "red";
+        resultEl.textContent = "Špatně, zkus to znovu.";
+        resultEl.style.color = "red";
       }
     }
+
+    submitBtn.addEventListener('click', checkAnswer);
+
+    // Enter v inputu také odpovídá
+    answerEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+
+    // Funkce: zobrazit video overlay a spustit video
+    function showVideo() {
+      // Vyber variantu, podle toho co chceš spouštět.
+      overlay.style.display = 'flex';
+
+      // VARIANTA A: lokální <video> - play() spustíme explicitně
+      if (localVideo) {
+        try {
+          // restartujeme video od začátku a spustíme
+          localVideo.currentTime = 0;
+          // play() je voláno v rámci uživatelské akce (kliknutí), proto by mělo fungovat i se zvukem
+          const playPromise = localVideo.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              // pokud playback z nějakého důvodu zamítnut — ztišíme a zkusíme znova
+              console.warn('Problém s přehráním videa:', err);
+              localVideo.muted = true;
+              localVideo.play().catch(()=>{});
+            });
+          }
+        } catch (e) {
+          console.error('Chyba při spuštění videa', e);
+        }
+      }
+
+      // VARIANTA B: YouTube iframe — pokud používáš YouTube, nastav src s parametrem autoplay=1
+      // Pokud chceš YouTube variantu, odkomentuj iframe v HTML a nahraď VIDEO_ID v src.
+    }
+
+    // Zavřít video a zastavit přehrávání
+    closeVideo.addEventListener('click', () => {
+      overlay.style.display = 'none';
+
+      // zastavíme lokální video
+      if (localVideo && !localVideo.paused) {
+        localVideo.pause();
+        try { localVideo.currentTime = 0; } catch(e){ /* ignorovat */ }
+      }
+
+      // pokud používáš YouTube iframe, můžeš nastavit src="" nebo reloadovat iframe, aby se zastavilo
+      const yt = document.getElementById('youtubeIframe');
+      if (yt) {
+        // vyresetováním src se video zastaví
+        const src = yt.src;
+        yt.src = src; // jednoduchý refresh
+      }
+
+      // případně vyčistit odpověď a výsledek
+      // answerEl.value = '';
+      // resultEl.textContent = '';
+    });
+
+    // Kliknutí mimo video také zavře (pokud chceš)
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeVideo.click();
+    });
+
+    // -> volitelně: pokud chceš automaticky skrýt formulář při přehrávání
+    // document.getElementById('quiz').style.display = 'none';
   </script>
 </body>
 </html>
