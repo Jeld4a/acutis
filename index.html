@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
-  <title>Kvíz – přesmyčky (1 týdně)</title>
+  <title>Dálnice do nebe</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     body {
@@ -64,7 +64,7 @@
       overflow: hidden;
       position: relative;
     }
-    .video-card video, .video-card iframe {
+    .video-card video {
       width: 100%;
       aspect-ratio: 16 / 9;
       display: block;
@@ -84,7 +84,7 @@
 </head>
 <body>
   <div class="container" id="quiz">
-    <h2>Přesmyčka týdne</h2>
+    <h2>Dálnice do nebe</h2>
     <p id="question">Načítám přesmyčku…</p>
 
     <input type="text" id="answer" placeholder="Vaše odpověď" autocomplete="off" />
@@ -92,9 +92,6 @@
     <button id="submitBtn">Odpovědět</button>
 
     <p id="result"></p>
-    <small style="display:block;margin-top:8px;color:#666">
-      Přesmyčka se mění každý týden.
-    </small>
   </div>
 
   <!-- Overlay s videem -->
@@ -158,6 +155,7 @@
       const days = Math.floor((now - onejan) / (24 * 60 * 60 * 1000));
       const weekNumber = Math.ceil((days + onejan.getDay() + 1) / 7);
 
+      // postupně v přesném pořadí, jak jsou v poli
       const idx = weekNumber % anagrams.length;
       currentAnagram = anagrams[idx];
 
@@ -205,7 +203,8 @@
         return;
       }
 
-      if (userAnswer.toLowerCase() === currentAnagram.a.toLowerCase()) {
+      // porovnání case-insensitive (česká lokalizace)
+      if (userAnswer.localeCompare(currentAnagram.a, 'cs', { sensitivity: 'base' }) === 0) {
         result.textContent = "Správně! 🎉";
         result.style.color = "green";
         showVideo();
