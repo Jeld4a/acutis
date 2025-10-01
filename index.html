@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
-  <title>Kvíz – otázka po 5 minutách</title>
+  <title>Kvíz – přesmyčky (1 týdně)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     body {
@@ -84,8 +84,8 @@
 </head>
 <body>
   <div class="container" id="quiz">
-    <h2>Otázka kvízu</h2>
-    <p id="question">Načítám otázku…</p>
+    <h2>Přesmyčka týdne</h2>
+    <p id="question">Načítám přesmyčku…</p>
 
     <input type="text" id="answer" placeholder="Vaše odpověď" autocomplete="off" />
     <br/>
@@ -93,7 +93,7 @@
 
     <p id="result"></p>
     <small style="display:block;margin-top:8px;color:#666">
-      Otázka se mění každých 5 minut.
+      Přesmyčka se mění každý týden.
     </small>
   </div>
 
@@ -102,53 +102,71 @@
     <div class="video-card">
       <button class="close-btn" id="closeVideo">Zavřít ✕</button>
 
-      <!-- Varianta A: lokální MP4 -->
+      <!-- Lokální MP4 -->
       <video id="localVideo" controls playsinline>
         <source src="video/congrats.mp4" type="video/mp4">
         Váš prohlížeč nepodporuje přehrávání videa.
       </video>
-
-      <!-- Varianta B: YouTube (odkomentuj a nahraď VIDEO_ID) -->
-      <!--
-      <iframe id="youtubeIframe"
-              src="https://www.youtube.com/embed/VIDEO_ID?rel=0"
-              title="Oslavné video"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-      </iframe>
-      -->
     </div>
   </div>
 
   <script>
-    const questions = [
-      { q: "Kolik je 3 + 4?", a: "7" },
-      { q: "Jaké je hlavní město České republiky?", a: "Praha" },
-      { q: "Kolik má měsíců jeden rok?", a: "12" },
-      { q: "Jaká je chemická značka vody?", a: "H2O" },
-      { q: "Kolik stran má čtverec?", a: "4" },
-      { q: "Jaký je název naší planety?", a: "Země" },
-      { q: "Jak se řekne 'ano' v angličtině?", a: "yes" },
-      { q: "Počet dní v týdnu?", a: "7" },
-      { q: "Barva oblohy ve dne za dobrého počasí?", a: "modrá" }
+    const anagrams = [
+      { q: "ORADACE", a: "adorace" },
+      { q: "JIMÍPŘÍNÁ", a: "přijímání" },
+      { q: "UDÍZDÁVNÍK", a: "díkuvzdání" },
+      { q: "SAÚT", a: "ústa" },
+      { q: "LOLETĚUVAD", a: "udělovatel" },
+      { q: "ŠINEPEC", a: "pšenice" },
+      { q: "ANITSOH", a: "hostina" },
+      { q: "NOSCENTRAM", a: "monstrance" },
+      { q: "STOTSÁV", a: "svátost" },
+      { q: "EMRAM", a: "Mamre" },
+      { q: "MLUVASO", a: "smlouva" },
+      { q: "ZKÁRAZ", a: "zázrak" },
+      { q: "CICEIANI", a: "iniciace" },
+      { q: "CRÍVEK", a: "církev" },
+      { q: "NAKLÍNĚ", a: "klanění" },
+      { q: "ANIHOD", a: "hodina" },
+      { q: "VLÁREKIA", a: "Kalvárie" },
+      { q: "RUACHISTEIE", a: "eucharistie" },
+      { q: "TYLOKAT", a: "akolyta" },
+      { q: "LETOSVYVAHUL", a: "vysluhovatel" },
+      { q: "CHHCEDEZILEM", a: "Melchizedech" },
+      { q: "VATÝVS", a: "výstav" },
+      { q: "EZAUYM", a: "Emauzy" },
+      { q: "ZASOBŮP", a: "způsoba" },
+      { q: "ŇÁNÍVOPRÁMO", a: "proměňování" },
+      { q: "HLOCRV", a: "vrchol" },
+      { q: "KUSTIRS", a: "Kristus" },
+      { q: "ŤANSEŘK", a: "křesťan" },
+      { q: "VOIDOHÁNÍVZP", a: "pozdvihování" },
+      { q: "JORDZ", a: "zdroj" },
+      { q: "OLDAVŘEEČ", a: "večeřadlo" },
+      { q: "KANTMUNIVOKOPR", a: "prvokomunikant" },
+      { q: "ŠÍMEN", a: "mešní" },
+      { q: "ÁMÍLÁN", a: "lámání" },
+      { q: "AÁEKNOSSTTV", a: "svatostánek" }
     ];
 
-    let currentQuestion;
+    let currentAnagram;
 
-    function selectQuestion() {
+    function selectAnagram() {
       const now = new Date();
-      const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
-      const intervalIndex = Math.floor(minutesSinceMidnight / 5);
-      const idx = intervalIndex % questions.length;
-      currentQuestion = questions[idx];
-      document.getElementById('question').textContent = currentQuestion.q;
+      // číslo týdne v roce
+      const onejan = new Date(now.getFullYear(), 0, 1);
+      const days = Math.floor((now - onejan) / (24 * 60 * 60 * 1000));
+      const weekNumber = Math.ceil((days + onejan.getDay() + 1) / 7);
+
+      const idx = weekNumber % anagrams.length;
+      currentAnagram = anagrams[idx];
+
+      document.getElementById('question').textContent = currentAnagram.q;
       document.getElementById('result').textContent = "";
       document.getElementById('answer').value = "";
     }
 
-    selectQuestion();
-    setInterval(selectQuestion, 5 * 60 * 1000);
+    selectAnagram();
 
     const overlay = document.getElementById('overlay');
     const localVideo = document.getElementById('localVideo');
@@ -170,10 +188,6 @@
         localVideo.pause();
         localVideo.currentTime = 0;
       }
-      const yt = document.getElementById('youtubeIframe');
-      if (yt) {
-        yt.src = yt.src; // refresh iframe = stop
-      }
     }
 
     closeVideo.addEventListener('click', hideVideo);
@@ -191,7 +205,7 @@
         return;
       }
 
-      if (userAnswer.toLowerCase() === currentQuestion.a.toLowerCase()) {
+      if (userAnswer.toLowerCase() === currentAnagram.a.toLowerCase()) {
         result.textContent = "Správně! 🎉";
         result.style.color = "green";
         showVideo();
