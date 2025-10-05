@@ -150,13 +150,16 @@
 
     function selectAnagram() {
       const now = new Date();
-      // číslo týdne v roce
-      const onejan = new Date(now.getFullYear(), 0, 1);
-      const days = Math.floor((now - onejan) / (24 * 60 * 60 * 1000));
-      const weekNumber = Math.ceil((days + onejan.getDay() + 1) / 7);
 
-      // postupně v přesném pořadí, jak jsou v poli
-      const idx = weekNumber % anagrams.length;
+      // Začátek projektu: pondělí 30. září 2025
+      const startDate = new Date(2025, 8, 29); // měsíce 0–11 → 8 = září
+
+      // Spočítá počet týdnů od startDate (zaokrouhleno dolů)
+      const diffDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+      const weekIndex = Math.floor(diffDays / 7);
+
+      // Vyber anagram podle pořadí (cyklicky)
+      const idx = ((weekIndex % anagrams.length) + anagrams.length) % anagrams.length;
       currentAnagram = anagrams[idx];
 
       document.getElementById('question').textContent = currentAnagram.q;
@@ -203,7 +206,6 @@
         return;
       }
 
-      // porovnání case-insensitive (česká lokalizace)
       if (userAnswer.localeCompare(currentAnagram.a, 'cs', { sensitivity: 'base' }) === 0) {
         result.textContent = "Správně! 🎉";
         result.style.color = "green";
