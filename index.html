@@ -85,7 +85,7 @@
 <body>
   <div class="container" id="quiz">
     <h2>Dálnice do nebe</h2>
-    <p id="question">Načítám přesmyčku…</p>
+    <p id="question">JIMÍPŘÍNÁ</p>
 
     <input type="text" id="answer" placeholder="Vaše odpověď" autocomplete="off" />
     <br/>
@@ -108,66 +108,7 @@
   </div>
 
   <script>
-    const anagrams = [
-      { q: "ORADACE", a: "adorace" },
-      { q: "JIMÍPŘÍNÁ", a: "přijímání" },
-      { q: "UDÍZDÁVNÍK", a: "díkuvzdání" },
-      { q: "SAÚT", a: "ústa" },
-      { q: "LOLETĚUVAD", a: "udělovatel" },
-      { q: "ŠINEPEC", a: "pšenice" },
-      { q: "ANITSOH", a: "hostina" },
-      { q: "NOSCENTRAM", a: "monstrance" },
-      { q: "STOTSÁV", a: "svátost" },
-      { q: "EMRAM", a: "Mamre" },
-      { q: "MLUVASO", a: "smlouva" },
-      { q: "ZKÁRAZ", a: "zázrak" },
-      { q: "CICEIANI", a: "iniciace" },
-      { q: "CRÍVEK", a: "církev" },
-      { q: "NAKLÍNĚ", a: "klanění" },
-      { q: "ANIHOD", a: "hodina" },
-      { q: "VLÁREKIA", a: "Kalvárie" },
-      { q: "RUACHISTEIE", a: "eucharistie" },
-      { q: "TYLOKAT", a: "akolyta" },
-      { q: "LETOSVYVAHUL", a: "vysluhovatel" },
-      { q: "CHHCEDEZILEM", a: "Melchizedech" },
-      { q: "VATÝVS", a: "výstav" },
-      { q: "EZAUYM", a: "Emauzy" },
-      { q: "ZASOBŮP", a: "způsoba" },
-      { q: "ŇÁNÍVOPRÁMO", a: "proměňování" },
-      { q: "HLOCRV", a: "vrchol" },
-      { q: "KUSTIRS", a: "Kristus" },
-      { q: "ŤANSEŘK", a: "křesťan" },
-      { q: "VOIDOHÁNÍVZP", a: "pozdvihování" },
-      { q: "JORDZ", a: "zdroj" },
-      { q: "OLDAVŘEEČ", a: "večeřadlo" },
-      { q: "KANTMUNIVOKOPR", a: "prvokomunikant" },
-      { q: "ŠÍMEN", a: "mešní" },
-      { q: "ÁMÍLÁN", a: "lámání" },
-      { q: "AÁEKNOSSTTV", a: "svatostánek" }
-    ];
-
-    let currentAnagram;
-
-    function selectAnagram() {
-      const now = new Date();
-
-      // Začátek projektu: pondělí 30. září 2025
-      const startDate = new Date(2025, 8, 29); // měsíce 0–11 → 8 = září
-
-      // Spočítá počet týdnů od startDate (zaokrouhleno dolů)
-      const diffDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
-      const weekIndex = Math.floor(diffDays / 7);
-
-      // Vyber anagram podle pořadí (cyklicky)
-      const idx = ((weekIndex % anagrams.length) + anagrams.length) % anagrams.length;
-      currentAnagram = anagrams[idx];
-
-      document.getElementById('question').textContent = currentAnagram.q;
-      document.getElementById('result').textContent = "";
-      document.getElementById('answer').value = "";
-    }
-
-    selectAnagram();
+    const currentAnagram = { q: "JIMÍPŘÍNÁ", a: "přijímání" };
 
     const overlay = document.getElementById('overlay');
     const localVideo = document.getElementById('localVideo');
