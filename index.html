@@ -99,8 +99,8 @@
     <div class="video-card">
       <button class="close-btn" id="closeVideo">Zavřít ✕</button>
 
-      <!-- Lokální MP4 -->
-      <video id="localVideo" controls playsinline>
+      <!-- Lokální MP4 s mutem pro autoplay -->
+      <video id="localVideo" controls playsinline muted>
         <source src="video/congrats.mp4" type="video/mp4">
         Váš prohlížeč nepodporuje přehrávání videa.
       </video>
@@ -108,7 +108,6 @@
   </div>
 
   <script>
-    <!-- GABKA: Tady to vyměníš a pak už jen dáš vpravo nahoře zelené Commit changes..b. +-->
     const currentAnagram = { q: "UDÍZDÁVNÍK", a: "díkuvzdání" };
 
     const overlay = document.getElementById('overlay');
@@ -132,6 +131,13 @@
         localVideo.currentTime = 0;
       }
     }
+
+    // Umožní zapnutí zvuku po kliknutí na video
+    localVideo.addEventListener('click', () => {
+      if (localVideo.muted) {
+        localVideo.muted = false;
+      }
+    });
 
     closeVideo.addEventListener('click', hideVideo);
     overlay.addEventListener('click', e => {
@@ -165,7 +171,3 @@
   </script>
 </body>
 </html>
-
-
-
-
