@@ -45,7 +45,6 @@
     button:hover { filter: brightness(0.95); }
     #result { margin-top: 14px; font-weight: 600; min-height: 22px; }
 
-    /* Overlay */
     .overlay {
       position: fixed;
       inset: 0;
@@ -85,7 +84,7 @@
 <body>
   <div class="container" id="quiz">
     <h2>Dálnice do nebe</h2>
-    <p id="question">UDÍZDÁVNÍK</p>
+    <p id="question"></p>
 
     <input type="text" id="answer" placeholder="Vaše odpověď" autocomplete="off" />
     <br/>
@@ -99,30 +98,24 @@
     <div class="video-card">
       <button class="close-btn" id="closeVideo">Zavřít ✕</button>
 
-      <!-- Lokální MP4 s mutem pro autoplay -->
-      <video id="localVideo" controls playsinline muted>
+      <!-- Video přehrávané se zvukem -->
+      <video id="localVideo" controls playsinline>
         <source src="https://raw.githubusercontent.com/Jeld4a/acutis/main/congrats.mp4" type="video/mp4">
-        Your browser does not support playing this video.
+        Váš prohlížeč nepodporuje přehrávání videa.
       </video>
     </div>
   </div>
 
   <script>
+    // 🧩 Změň jen tento objekt – otázka i odpověď se automaticky přizpůsobí
     const currentAnagram = { q: "UDÍZDÁVNÍK", a: "díkuvzdání" };
+
+    // Nastav text otázky automaticky podle currentAnagram.q
+    document.getElementById('question').textContent = currentAnagram.q;
 
     const overlay = document.getElementById('overlay');
     const localVideo = document.getElementById('localVideo');
     const closeVideo = document.getElementById('closeVideo');
-
-    function showVideo() {
-      overlay.style.display = 'flex';
-      if (localVideo) {
-        localVideo.currentTime = 0;
-        localVideo.play().catch(err => {
-          console.warn("Nepodařilo se spustit video:", err);
-        });
-      }
-    }
 
     function hideVideo() {
       overlay.style.display = 'none';
@@ -131,13 +124,6 @@
         localVideo.currentTime = 0;
       }
     }
-
-    // Umožní zapnutí zvuku po kliknutí na video
-    localVideo.addEventListener('click', () => {
-      if (localVideo.muted) {
-        localVideo.muted = false;
-      }
-    });
 
     closeVideo.addEventListener('click', hideVideo);
     overlay.addEventListener('click', e => {
@@ -157,7 +143,17 @@
       if (userAnswer.localeCompare(currentAnagram.a, 'cs', { sensitivity: 'base' }) === 0) {
         result.textContent = "Správně! 🎉";
         result.style.color = "green";
-        showVideo();
+
+        // Zobraz overlay a spusť video – přímo v rámci kliknutí
+        overlay.style.display = 'flex';
+        localVideo.currentTime = 0;
+
+        const playPromise = localVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.warn("Safari blokuje přehrávání:", err);
+          });
+        }
       } else {
         result.textContent = "Špatně, zkus to znovu.";
         result.style.color = "red";
@@ -171,4 +167,3 @@
   </script>
 </body>
 </html>
-
